@@ -1,11 +1,13 @@
 pipeline {
-    //agent 指定 Jenkins agent
+    //不指定 Jenkins agent
     agent any
     //Pipeline 執行步驟
     stages {
         //Pipeline 其中一個步驟
         stage ('First Pipeline') {
-            echo 'Hello Word'
+            steps { //宣告行為
+                echo 'Hello Word'
+            }
         }
     }
 }
