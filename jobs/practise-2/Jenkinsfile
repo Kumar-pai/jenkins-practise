@@ -1,0 +1,65 @@
+/*
+    Jenkins: https://www.jenkins.io/doc/book/pipeline/syntax/#agent
+
+    pipeline: 在區塊內完整撰寫出完整的 pipeline 
+    agent: 宣告要在 Jenkins 哪個節點執行，也可根據 stage 分別宣告個別執行點
+        agent any: 可在任意節點執行
+        agent {label "[LABEL]"}: 指定主機類型執行
+        agent none: 不指定任何節點執行(agent 為 none 須在 stage 指定 agent)
+    stages: pipeline 內部執行流程
+        stage: 細部處理每一個宣告邏輯， stages 會有多個 stage
+            steps: 可定義每個 stage 內更細部的安排
+*/
+/*
+    echo: 輸出訊息
+    sh: 可執行 shell script
+*/
+pipeline {
+    agent any
+    stages {
+        stage ('Job 1') {
+            // agent {label "master"}
+            steps {
+                echo "Job 1 - Command 1"
+                echo "Job 1 - Command 2"
+                echo "Job 1 - Command 3"
+            }
+        }
+        stage ('Job 2') {
+            // agent any
+            steps {
+                echo "Job 2 - Command 1"
+                echo "Job 2 - Command 2"
+            }
+        }
+        stage('Check www.example.com Response Code') {
+            steps {
+                /*
+                    -o 下載檔案 自定檔名
+                    -O 下載檔案 網址列檔名
+                    -s  不顯示進度條
+                    -w 在 stdout(Standard Output) 上顯示自定義訊息
+                        stderr(Standard Error)
+                    
+                    參考資料：
+                        https://blog.techbridge.cc/2019/02/01/linux-curl-command-tutorial/
+                        https://cloud.tencent.com/developer/article/1836659?from=15425&areaSource=102001.1&traceId=jo5HpwDct-D_ETqpM-wj2
+                 */
+                sh '''
+                    CHECK_DOMAIN="www.example.com"
+                    TELEGRAM_TOKEN="test-token"
+                    TELEGRAM_GROUP_ID="-00000000"
+
+                    CODE=$(curl -o /dev/null -s -w %{http_code} ${CHECK_DOMAIN})
+
+                    if[ ${CODE} != 200]; then
+                        message="${CHECK_DOMAIN} response code != 200."
+                        
+                        curl -X GET "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+                            -d "chat_id=${TELEGRAM_GROUP_ID}&text=${message}"
+                    fi
+                '''
+            }
+        }
+    }
+}
