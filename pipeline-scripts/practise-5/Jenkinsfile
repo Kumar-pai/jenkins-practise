@@ -1,4 +1,4 @@
-library 'practise-5'
+library 'practise-library'
 
 pipeline {
     agent any

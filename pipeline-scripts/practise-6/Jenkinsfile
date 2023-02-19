@@ -1,0 +1,10 @@
+library 'practise-library'
+
+
+// practies6(domain: 'www.example.com', http_code: 200)
+practies6(domain: 'www.google.com', http_code: 200)
+// practies6(domain: 'test.k6.io', http_code: 308)
+// practies6(domain: 'k6.io', http_code: 301)
+
+
+
