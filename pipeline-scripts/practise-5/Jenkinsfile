@@ -1,0 +1,15 @@
+library 'practise-5'
+
+pipeline {
+    agent any
+    stages {
+        stage ('Test Libaray') {
+            steps {
+                practise5('Practise')
+                practise5('Jenkins')
+                practise5('Kumar')
+            }
+        }
+    }
+}
+
