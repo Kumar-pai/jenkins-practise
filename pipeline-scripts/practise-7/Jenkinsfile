@@ -10,4 +10,14 @@ pipeline {
             }
         }
     }
+    post {
+        always {
+            /*
+                Jenkins CSP Policy: https://www.jenkins.io/doc/book/security/configuring-content-security-policy/
+                Jenkins archive: https://www.jenkins.io/doc/pipeline/steps/core/
+            */
+            archiveArtifacts artifacts: 'practise7.html',
+            followSymlinks: true
+        }
+    }
 }
