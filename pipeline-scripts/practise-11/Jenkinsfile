@@ -1,0 +1,166 @@
+pipeline {
+    agent any
+    parameters {
+        string(name: 'env_string', defaultValue: 'staging')
+        choice(name: 'env_choice', choices: ['staging', 'uat', 'prod'])
+    }
+    environment {
+        env_environment = 'staging'
+    }
+    stages {
+        stage ("Staring Param") {
+            /*
+              when expression 裡的條件式 = true，執行 stage
+            */
+            parallel {
+                stage ('The string param is [uat]') {
+                    when {
+                        expression {params.env_string == 'uat'}
+                    }
+                    steps {
+                        echo 'processing'
+                    }
+                }
+                stage ('The string param [staging]') {
+                    when {
+                        expression {params.env_string == 'staging'}
+                    }
+                    steps {
+                        echo 'processong'
+                    }
+                }
+            }
+        }
+        stage ('Not Param') {
+            /*
+              when not expression 裡的條件式 = true，不執行stage
+            */
+            parallel {
+                stage ('the string param is not [uat]') {
+                    when {
+                        not { expression {params.env_string == 'uat'}}
+                    }
+                    steps {
+                        echo 'processing'
+                    }
+                }
+                stage ('the string param is not [staging]') {
+                    when {
+                        not {
+                            expression {params.env_string == 'staging'}
+                        }
+                    }
+                    steps {
+                        echo 'processong'
+                    }
+                }
+            }
+        }
+        stage ("Choice Param") {
+            parallel {
+                stage ('Staging Env') {
+                    when {
+                        expression { params.env_choice == 'staging' }
+                    }
+                    steps {
+                        echo 'Deploy to staging env'
+                    }
+                }
+                stage ('Uat Env') {
+                    when {
+                        expression { params.env_choice == 'uat'}
+                    }
+                    steps {
+                        echo 'Deploy to uat env'
+                    }
+                }
+                stage ('Prod Env') {
+                    when {
+                        expression { params.env_choice == 'prod' }
+                    }
+                    steps {
+                        echo 'Deploy to prod env'
+                    }
+                }
+            }
+        }
+        stage ("Environment"){
+            parallel {
+                /*
+                    when environment 環就變數值相符時，才執行 stage
+                */
+                 stage ('the enironment is [uat]') {
+                    when {
+                        environment name: 'env_environment', value: 'uat'
+                    }
+                    steps {
+                        echo 'processing'
+                    }
+                }
+                stage ('the enironment is [staging]') {
+                    when {
+                        environment name: 'env_environment', value: 'staging'
+                    }
+                    steps {
+                        echo 'processing'
+                    }
+                } 
+            }
+        }
+        stage ("allOf") {
+            parallel {
+                /*
+                    when allOf 當條件皆為 true 時，才執行 stage
+                */
+                stage ('the params are [staging]') {
+                    when {
+                        allOf {
+                            expression {params.env_choice == 'staging'}
+                            expression {params.env_string == 'staging'}
+                        }
+                    }
+                    steps {
+                        echo 'processing'
+                    }
+                }
+                stage ('the params not all are [staging]') {
+                    when {
+                        allOf {
+                            expression {params.env_choice == 'uat'}
+                            expression {params.env_string == 'staging'}
+                        }
+                    }
+                    steps {
+                        echo 'processing'
+                    }
+                }
+            }
+        }
+        stage ("anyOf") {
+            parallel {
+                stage ('the params not have a [uat]') {
+                    when {
+                        anyOf {
+                            environment name: 'env_environment', value: 'uat'
+                            expression {params.env_string == 'uat'}
+                        }
+                    }
+                    steps {
+                        echo 'processing'
+                    }
+                }
+                stage ('the params have a [staging]') {
+                    when {
+                        anyOf {
+                            environment name: 'env_environment', value: 'uat'
+                            expression {params.env_string == 'staging'}
+                        }
+                    }
+                    steps {
+                         echo 'processing'
+                    }
+                }
+            }
+        }
+    }
+}
