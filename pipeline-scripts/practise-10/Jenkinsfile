@@ -1,0 +1,55 @@
+/*
+    Jenkins parameters: https://www.jenkins.io/doc/book/pipeline/syntax/#parameters
+*/
+pipeline {
+    agent any
+    parameters {
+        //type boolean
+        booleanParam(name: 'poc', defaultValue: false)
+        //type string
+        text(name: 'appication_env', defaultValue: 'test')
+        //limit input value
+        choice(name: 'env', choices: ['test', 'poc', 'prod'])
+        //Hident in console
+        password(name: 'db_passwd', defaultValue: "g")
+    }
+    stages {
+        stage ("Check Is POC") {
+            steps {
+                script {
+                    if (params.poc) {
+                        echo 'Is POC'
+                    } else {
+                        echo 'Not POC'
+                    }
+                }
+            }
+        }
+        stage ("Check Appication ENV") {
+            steps {
+                script {
+                    if (params.appication_env == 'test') {
+                        echo 'It is test environment'
+                    } else {
+                        sh 'false'
+                    }
+                }
+            }
+        }
+        stage ("Echo Choice") {
+            steps {
+                script {
+                    echo "${params.env}"
+                }    
+            }
+        }
+        stage ("Hident") {
+            steps {
+                script {
+                    echo "The password can't display ${params.db_passwd}"
+                }
+            }
+           
+        }
+    }
+}
