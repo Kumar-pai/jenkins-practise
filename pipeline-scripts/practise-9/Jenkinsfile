@@ -1,0 +1,39 @@
+/*
+    Jenkins
+        Parallel: 平行處理
+        https://www.jenkins.io/blog/2017/09/25/declarative-1/
+    Groovy
+        collectEntries: list 迭代器
+*/
+
+server_list = ['a-server', 'b-server', 'c-server']
+
+def parallelStageMap = server_list.collectEntries {
+    ["${it}": geaerateStage(it)]
+}
+
+def geaerateStage (server) {
+    return {
+        stage ("${server} Healthy Check") {
+            script {
+                sh "curl http://${server}:8000/api/healthy_check"
+            }
+        }
+    }
+}
+
+pipeline {
+    agent any
+    stages {
+        stage ("Healthy Check") {
+            steps {
+                script {
+                /*
+                    stage 只能包含一個 parallel，且這個 stage 不能再存在 steps、stages 或 matrix。
+                */
+                    parallel parallelStageMap
+                }
+            }
+        }
+    }
+}
