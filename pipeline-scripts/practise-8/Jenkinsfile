@@ -1,0 +1,21 @@
+server_list=['a-server', 'b-server', 'c-server']
+
+pipeline {
+    agent any
+    stages {
+        stage("Healthy Check") {
+            steps {
+                healthy_check(server_list)
+            }
+        }
+    }
+}
+
+def healthy_check(list) {
+    for (int i = 0; i < list.size(); i++) {
+        stage ("${list[i]} Healthy Check") {
+            // sh "curl http://${list[i]}:8000/api/healthy_check"
+            echo "curl http://${list[i]}-server:8000/healthz"
+        }
+    }
+}
